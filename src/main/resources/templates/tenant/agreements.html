@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('My Rental Agreements')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-2 mb-4">
+            <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/tenant/dashboard}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/tenant/search}"><i class="bi bi-search me-2"></i> Find Properties</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/tenant/applications}"><i class="bi bi-file-earmark-text me-2"></i> My Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold text-primary" th:href="@{/tenant/agreements}"><i class="bi bi-file-earmark-check me-2"></i> Rental Agreements</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/tenant/profile}"><i class="bi bi-person-circle me-2"></i> Profile &amp; History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/tenant/notifications}"><i class="bi bi-bell me-2"></i> Notifications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/messages}"><i class="bi bi-chat-dots me-2"></i> Direct Messages</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1">My Rental Agreements &amp; Leases</h3>
+                    <p class="text-muted mb-0">View binding tenancy contracts, monthly payment schedules, and property rules.</p>
+                </div>
+            </div>
+
+            <!-- Agreements Cards -->
+            <div class="row g-4" th:if="${agreements != null and !agreements.isEmpty()}">
+                <div class="col-lg-6" th:each="agr : ${agreements}">
+                    <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: 14px;">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <span th:if="${agr.status.name() == 'ACTIVE'}" class="badge bg-success mb-2"><i class="bi bi-check-circle me-1"></i> Active Tenancy</span>
+                                <span th:if="${agr.status.name() == 'TERMINATED'}" class="badge bg-danger mb-2">Terminated</span>
+                                <span th:if="${agr.status.name() == 'EXPIRED'}" class="badge bg-secondary mb-2">Expired</span>
+                                <h4 class="fw-bold text-dark mb-1" th:text="${agr.property.title}">Executive Penthouse</h4>
+                                <p class="text-muted small mb-0"><i class="bi bi-geo-alt text-danger me-1"></i><span th:text="${agr.property.address} + ', ' + ${agr.property.city}">Location</span></p>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="fw-bold text-primary mb-0">$<span th:text="${#numbers.formatDecimal(agr.monthlyRent, 0, 'COMMA', 0, 'POINT')}">4,900</span></h3>
+                                <small class="text-muted">per month</small>
+                            </div>
+                        </div>
+
+                        <div class="bg-light p-3 rounded border mb-3 small">
+                            <div class="row g-2">
+                                <div class="col-6"><strong>Start Date:</strong> <span th:text="${agr.startDate}">2026-07-01</span></div>
+                                <div class="col-6"><strong>End Date:</strong> <span th:text="${agr.endDate}">2027-06-30</span></div>
+                                <div class="col-6"><strong>Security Deposit:</strong> $<span th:text="${agr.securityDeposit}">4900</span></div>
+                                <div class="col-6"><strong>Manager:</strong> <span th:text="${agr.manager.name}">Sarah Jenkins</span></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="fw-bold mb-2">Lease Terms &amp; Conditions:</h6>
+                            <div class="p-3 bg-body-tertiary rounded border" style="max-height: 140px; overflow-y: auto;">
+                                <pre class="small text-secondary mb-0" style="white-space: pre-wrap; font-family: inherit;" th:text="${agr.termsAndConditions}">Terms...</pre>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto d-flex justify-content-end gap-2 pt-2 border-top">
+                            <a th:href="@{/messages(with=${agr.manager.id}, propertyId=${agr.property.id})}" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-chat-dots me-1"></i> Contact Manager
+                            </a>
+                            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-printer me-1"></i> Print Lease
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${agreements == null or agreements.isEmpty()}" class="card border-0 shadow-sm p-5 text-center mt-3">
+                <i class="bi bi-file-earmark-check text-muted" style="font-size: 3rem;"></i>
+                <h5 class="fw-bold mt-3">No Active Rental Agreements</h5>
+                <p class="text-muted">Once your rental application is approved, your property manager will issue your official agreement here.</p>
+                <div>
+                    <a th:href="@{/tenant/search}" class="btn btn-primary">Browse Available Homes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

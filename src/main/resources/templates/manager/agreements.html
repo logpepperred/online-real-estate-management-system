@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Rental Agreements')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-2 mb-4">
+            <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/dashboard}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/properties}"><i class="bi bi-houses me-2"></i> My Properties</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/applications}"><i class="bi bi-inbox me-2"></i> Rental Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold text-primary" th:href="@{/manager/agreements}"><i class="bi bi-file-earmark-check me-2"></i> Rental Agreements</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/messages}"><i class="bi bi-chat-dots me-2"></i> Tenant Messages</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/analytics}"><i class="bi bi-graph-up me-2"></i> Listing Analytics</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1">Rental Agreement Management</h3>
+                    <p class="text-muted mb-0">Create binding lease agreements, track active tenancies, and manage terms.</p>
+                </div>
+                <a th:href="@{/manager/agreements/new}" class="btn btn-primary">
+                    <i class="bi bi-file-earmark-plus me-1"></i> Issue New Rental Agreement
+                </a>
+            </div>
+
+            <!-- Agreements Table -->
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Property</th>
+                                <th>Tenant</th>
+                                <th>Lease Period</th>
+                                <th>Monthly Rent</th>
+                                <th>Security Deposit</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="agr : ${agreements}">
+                                <td class="text-muted" th:text="${agr.id}">1</td>
+                                <td>
+                                    <div class="fw-bold" th:text="${agr.property.title}">Executive High-Rise Penthouse</div>
+                                    <small class="text-muted" th:text="${agr.property.city}">New York, NY</small>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold" th:text="${agr.tenant.name}">Alex Johnson</div>
+                                    <small class="text-muted" th:text="${agr.tenant.email}">tenant@test.com</small>
+                                </td>
+                                <td class="small text-muted">
+                                    <span th:text="${agr.startDate}">2026-07-01</span> &rarr; <span th:text="${agr.endDate}">2027-06-30</span>
+                                </td>
+                                <td class="fw-bold text-success">$<span th:text="${#numbers.formatDecimal(agr.monthlyRent, 0, 'COMMA', 0, 'POINT')}">4,900</span></td>
+                                <td class="fw-semibold text-muted">$<span th:text="${#numbers.formatDecimal(agr.securityDeposit != null ? agr.securityDeposit : 0, 0, 'COMMA', 0, 'POINT')}">4,900</span></td>
+                                <td>
+                                    <span th:if="${agr.status.name() == 'ACTIVE'}" class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Active</span>
+                                    <span th:if="${agr.status.name() == 'TERMINATED'}" class="badge bg-danger"><i class="bi bi-slash-circle me-1"></i> Terminated</span>
+                                    <span th:if="${agr.status.name() == 'EXPIRED'}" class="badge bg-secondary"><i class="bi bi-clock me-1"></i> Expired</span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <!-- View Terms Modal Trigger -->
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" th:data-bs-target="'#viewTerms' + ${agr.id}">
+                                            <i class="bi bi-file-text me-1"></i> Terms
+                                        </button>
+                                        <!-- Terminate Button -->
+                                        <form th:if="${agr.status.name() == 'ACTIVE'}" th:action="@{/manager/agreements/terminate/{id}(id=${agr.id})}" method="post" class="d-inline"
+                                              onsubmit="return confirm('Are you sure you want to terminate this rental agreement? Property will become available again.');">
+                                            <button type="submit" class="btn btn-outline-danger">
+                                                <i class="bi bi-x-circle me-1"></i> Terminate
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Terms Modal -->
+                                    <div class="modal fade" th:id="'viewTerms' + ${agr.id}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content text-start">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title fw-bold">Rental Agreement Terms</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <h6 class="fw-bold" th:text="${agr.property.title}">Property</h6>
+                                                    <p class="small text-muted mb-3" th:text="'Tenant: ' + ${agr.tenant.name} + ' (' + ${agr.tenant.email} + ')'"></p>
+                                                    <div class="p-3 bg-light rounded border mb-3">
+                                                        <pre class="mb-0 text-secondary" style="white-space: pre-wrap; font-family: inherit;" th:text="${agr.termsAndConditions}">Agreement terms...</pre>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${agreements == null or agreements.isEmpty()}" class="card border-0 shadow-sm p-5 text-center mt-3">
+                <i class="bi bi-file-earmark-text text-muted" style="font-size: 3rem;"></i>
+                <h5 class="fw-bold mt-3">No Rental Agreements Issued Yet</h5>
+                <p class="text-muted">Issue your first agreement once an application is accepted.</p>
+                <div>
+                    <a th:href="@{/manager/agreements/new}" class="btn btn-primary">Create Agreement</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Property Listing Approvals')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-2 mb-4">
+            <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/users}"><i class="bi bi-people me-2"></i> User Management</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold text-primary" th:href="@{/admin/properties}"><i class="bi bi-houses me-2"></i> Property Approvals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/activity-logs}"><i class="bi bi-clock-history me-2"></i> Activity Logs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/settings}"><i class="bi bi-gear me-2"></i> System Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/reports}"><i class="bi bi-graph-up-arrow me-2"></i> Reports &amp; Analytics</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1">Property Listing Management</h3>
+                    <p class="text-muted mb-0">Review property listings submitted by Property Managers. Approve or reject with feedback.</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <span class="text-muted small fw-semibold">PENDING APPROVAL</span>
+                        <h4 class="fw-bold text-warning mb-0" th:text="${pendingCount}">1</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <span class="text-muted small fw-semibold">APPROVED (LIVE)</span>
+                        <h4 class="fw-bold text-success mb-0" th:text="${approvedCount}">4</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <span class="text-muted small fw-semibold">REJECTED</span>
+                        <h4 class="fw-bold text-danger mb-0" th:text="${rejectedCount}">0</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Listings Table -->
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Property Details</th>
+                                <th>Manager</th>
+                                <th>Rent / Month</th>
+                                <th>Current Status</th>
+                                <th>Submitted Date</th>
+                                <th class="text-end">Approval Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="prop : ${properties}">
+                                <td class="text-muted" th:text="${prop.id}">1</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img th:src="${prop.imageUrl != null ? prop.imageUrl : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=120&q=80'}"
+                                             style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;">
+                                        <div>
+                                            <a th:href="@{/properties/{id}(id=${prop.id})}" target="_blank" class="fw-bold text-decoration-none text-dark" th:text="${prop.title}">Property Title</a>
+                                            <div class="text-muted small">
+                                                <i class="bi bi-geo-alt text-danger me-1"></i><span th:text="${prop.address} + ', ' + ${prop.city}">Address</span>
+                                            </div>
+                                            <span class="badge bg-light text-secondary border" th:text="${prop.propertyType}">Apartment</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold" th:text="${prop.manager.name}">Sarah Jenkins</div>
+                                    <small class="text-muted" th:text="${prop.manager.email}">manager@test.com</small>
+                                </td>
+                                <td class="fw-bold text-primary">$<span th:text="${#numbers.formatDecimal(prop.price, 0, 'COMMA', 0, 'POINT')}">2,500</span></td>
+                                <td>
+                                    <span th:if="${prop.status.name() == 'PENDING_APPROVAL'}" class="badge bg-warning text-dark"><i class="bi bi-hourglass me-1"></i> Pending Approval</span>
+                                    <span th:if="${prop.status.name() == 'APPROVED'}" class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Approved</span>
+                                    <span th:if="${prop.status.name() == 'REJECTED'}" class="badge bg-danger"><i class="bi bi-x-circle me-1"></i> Rejected</span>
+                                    <span th:if="${prop.status.name() == 'RENTED'}" class="badge bg-primary"><i class="bi bi-key me-1"></i> Rented</span>
+
+                                    <div th:if="${prop.rejectionReason != null}" class="text-danger small mt-1" style="font-size: 11px;">
+                                        Reason: <span th:text="${prop.rejectionReason}">Reason</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted small" th:text="${#temporals.format(prop.createdAt, 'MMM dd, yyyy')}">Oct 14, 2026</td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <!-- Approve Button -->
+                                        <form th:if="${prop.status.name() != 'APPROVED' and prop.status.name() != 'RENTED'}"
+                                              th:action="@{/admin/properties/approve/{id}(id=${prop.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-success" title="Approve Listing">
+                                                <i class="bi bi-check-lg"></i> Approve
+                                            </button>
+                                        </form>
+
+                                        <!-- Reject Button with Modal -->
+                                        <button th:if="${prop.status.name() != 'REJECTED' and prop.status.name() != 'RENTED'}"
+                                                type="button" class="btn btn-outline-danger" data-bs-toggle="modal" th:data-bs-target="'#rejectModal' + ${prop.id}">
+                                            <i class="bi bi-x-lg"></i> Reject
+                                        </button>
+                                    </div>
+
+                                    <!-- Reject Reason Modal -->
+                                    <div class="modal fade" th:id="'rejectModal' + ${prop.id}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content text-start">
+                                                <form th:action="@{/admin/properties/reject/{id}(id=${prop.id})}" method="post">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold">Reject Property Listing</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p class="small text-muted">Provide reason or feedback to Property Manager for rejecting "<strong th:text="${prop.title}"></strong>":</p>
+                                                        <textarea name="reason" class="form-control" rows="3" placeholder="Explain what needs to be changed (e.g. invalid rent price, unclear photos, incomplete address)..." required></textarea>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-danger">Confirm Rejection</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Listing Analytics')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-2 mb-4">
+            <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/dashboard}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/properties}"><i class="bi bi-houses me-2"></i> My Properties</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/applications}"><i class="bi bi-inbox me-2"></i> Rental Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/agreements}"><i class="bi bi-file-earmark-check me-2"></i> Rental Agreements</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/messages}"><i class="bi bi-chat-dots me-2"></i> Tenant Messages</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold text-primary" th:href="@{/manager/analytics}"><i class="bi bi-graph-up me-2"></i> Listing Analytics</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1">Listing Analytics &amp; Reports</h3>
+                    <p class="text-muted mb-0">Track engagement, page views, and monthly rental revenue performance.</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <span class="text-muted small fw-semibold">TOTAL PROPERTIES</span>
+                        <h3 class="fw-bold text-dark mt-1 mb-0" th:text="${totalProperties}">3</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <span class="text-muted small fw-semibold">TOTAL LISTING VIEWS</span>
+                        <h3 class="fw-bold text-info mt-1 mb-0" th:text="${totalViews}">350</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <span class="text-muted small fw-semibold">TENANT INQUIRIES &amp; APPS</span>
+                        <h3 class="fw-bold text-warning mt-1 mb-0" th:text="${totalApplications}">2</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <span class="text-muted small fw-semibold">MONTHLY RENT POTENTIAL</span>
+                        <h3 class="fw-bold text-success mt-1 mb-0">$<span th:text="${#numbers.formatDecimal(monthlyRevenue, 0, 'COMMA', 0, 'POINT')}">4,900</span></h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Views Chart -->
+            <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 12px;">
+                <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Tenant Views by Property</h5>
+                <div style="height: 300px;">
+                    <canvas id="viewsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Table of Property Performance -->
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-table text-primary me-2"></i>Detailed Performance Breakdown</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Property Title</th>
+                                <th>Type</th>
+                                <th>City</th>
+                                <th>Rent / Month</th>
+                                <th>Views Count</th>
+                                <th>Occupancy Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="p : ${properties}">
+                                <td class="fw-bold" th:text="${p.title}">Title</td>
+                                <td th:text="${p.propertyType}">Apartment</td>
+                                <td th:text="${p.city}">San Francisco</td>
+                                <td class="text-primary fw-bold">$<span th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')}">2,500</span></td>
+                                <td>
+                                    <span class="badge bg-info-subtle text-info fs-6 px-3">
+                                        <i class="bi bi-eye me-1"></i> <span th:text="${p.viewsCount}">0</span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span th:if="${p.status.name() == 'APPROVED'}" class="badge bg-success">Listed (Active)</span>
+                                    <span th:if="${p.status.name() == 'RENTED'}" class="badge bg-primary">Rented</span>
+                                    <span th:if="${p.status.name() == 'PENDING_APPROVAL'}" class="badge bg-warning text-dark">Under Review</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const propertiesData = /*[[${properties}]]*/ [];
+    const labels = propertiesData.map(p => p.title.length > 25 ? p.title.substring(0, 25) + '...' : p.title);
+    const views = propertiesData.map(p => p.viewsCount || 0);
+
+    const ctx = document.getElementById('viewsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Tenant Views',
+                data: views,
+                backgroundColor: '#3b82f6',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 20 } }
+            }
+        }
+    });
+    /*]]>*/
+</script>
+
+</body>
+</html>

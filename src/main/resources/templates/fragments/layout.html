@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="header(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - EstateHub'">EstateHub - Online Real Estate Management</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #0f172a;
+            --surface-color: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f1f5f9;
+            color: #334155;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+            letter-spacing: -0.5px;
+        }
+        .nav-link {
+            font-weight: 500;
+            color: #475569;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color);
+        }
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07);
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        .badge-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .badge-approved, .badge-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .badge-rejected, .badge-terminated {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-rented {
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+        .sidebar {
+            background-color: #ffffff;
+            min-height: calc(100vh - 65px);
+            border-right: 1px solid var(--border-color);
+        }
+        .sidebar .nav-link {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 4px 12px;
+            color: #64748b;
+        }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            background-color: #eff6ff;
+            color: var(--primary-color);
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        footer {
+            margin-top: auto;
+            background: #ffffff;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation Bar Fragment -->
+<nav th:fragment="navbar" class="navbar navbar-expand-lg sticky-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/}">
+            <i class="bi bi-buildings-fill fs-4"></i>
+            <span>EstateHub</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <span class="navbar-toggler-prev bi bi-list fs-3"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}"><i class="bi bi-house me-1"></i> Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/properties}"><i class="bi bi-grid me-1"></i> Browse Properties</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <!-- If Not Authenticated -->
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="btn btn-outline-primary btn-sm px-3" th:href="@{/login}">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Log In
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="btn btn-primary btn-sm px-3" th:href="@{/register}">
+                        <i class="bi bi-person-plus me-1"></i> Register
+                    </a>
+                </li>
+
+                <!-- If Authenticated -->
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 14px;">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        <span sec:authentication="name" class="fw-semibold">User</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2 me-2"></i> Admin Dashboard</a>
+                        </li>
+                        <li sec:authorize="hasRole('PROPERTY_MANAGER')">
+                            <a class="dropdown-item" th:href="@{/manager/dashboard}"><i class="bi bi-speedometer2 me-2"></i> Manager Dashboard</a>
+                        </li>
+                        <li sec:authorize="hasRole('TENANT')">
+                            <a class="dropdown-item" th:href="@{/tenant/dashboard}"><i class="bi bi-speedometer2 me-2"></i> Tenant Dashboard</a>
+                        </li>
+                        <li sec:authorize="hasRole('TENANT')">
+                            <a class="dropdown-item" th:href="@{/tenant/profile}"><i class="bi bi-person-gear me-2"></i> Profile & History</a>
+                        </li>
+                        <li><a class="dropdown-item" th:href="@{/messages}"><i class="bi bi-chat-dots me-2"></i> Messages</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post" class="d-inline">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Alert Messages Fragment -->
+<div th:fragment="alerts" class="container-fluid px-4 mt-3">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
+        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+        <div th:text="${successMessage}">Operation successful!</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <div th:text="${errorMessage}">An error occurred.</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+
+<!-- Footer Fragment -->
+<footer th:fragment="footer" class="py-4 mt-auto">
+    <div class="container text-center text-muted">
+        <p class="mb-1 fw-medium">Online Real Estate Management System &bull; B.Tech Academic Project</p>
+        <small>&copy; 2026 EstateHub. Built with Spring Boot, Spring Security, JPA &amp; Thymeleaf.</small>
+    </div>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</footer>
+
+</body>
+</html>

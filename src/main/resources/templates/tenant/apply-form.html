@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Apply for Rental')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container py-4" style="max-width: 800px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3 class="fw-bold mb-1">Rental Application</h3>
+            <p class="text-muted mb-0">Apply online for <span class="fw-bold text-dark" th:text="${property.title}">Property Title</span></p>
+        </div>
+        <a th:href="@{/properties/{id}(id=${property.id})}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Property
+        </a>
+    </div>
+
+    <!-- Property Summary Snippet -->
+    <div class="card border-0 shadow-sm p-3 mb-4 bg-light" style="border-radius: 12px;">
+        <div class="d-flex align-items-center gap-3">
+            <img th:src="${property.imageUrl != null ? property.imageUrl : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=120&q=80'}"
+                 style="width: 80px; height: 80px; border-radius: 8px; object-fit: cover;">
+            <div>
+                <h5 class="fw-bold mb-1" th:text="${property.title}">Title</h5>
+                <p class="text-muted small mb-1"><i class="bi bi-geo-alt text-danger me-1"></i><span th:text="${property.address} + ', ' + ${property.city}">Address</span></p>
+                <div class="fw-bold text-primary">$<span th:text="${#numbers.formatDecimal(property.price, 0, 'COMMA', 0, 'POINT')}">2,500</span> / month &bull; Security Deposit: $<span th:text="${property.securityDeposit}">2500</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Form -->
+    <div class="card border-0 shadow-sm p-4" style="border-radius: 14px;">
+        <form th:action="@{/tenant/apply/submit}" th:object="${application}" method="post">
+            <input type="hidden" name="propertyId" th:value="${property.id}">
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Target Move-in Date</label>
+                    <input type="date" th:field="*{moveInDate}" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Current Occupation / Employer</label>
+                    <input type="text" th:field="*{occupation}" class="form-control" placeholder="e.g. Software Engineer at Tech Corp" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Estimated Monthly Gross Income ($)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" step="0.01" th:field="*{monthlyIncome}" class="form-control" placeholder="6000.00" required>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Applicant Name (Auto-filled)</label>
+                    <input type="text" class="form-control" th:value="${currentUser.name}" disabled>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Additional Notes for Property Manager</label>
+                <textarea th:field="*{notes}" class="form-control" rows="4"
+                          placeholder="Introduce yourself, mention lease duration preference (e.g. 12 months), pets if any, or references..."></textarea>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a th:href="@{/tenant/search}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                    <i class="bi bi-send-check me-1"></i> Submit Rental Application
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

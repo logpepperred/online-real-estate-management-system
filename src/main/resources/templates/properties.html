@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: header('Browse Properties')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container py-4">
+    <!-- Search & Filter Card -->
+    <div class="card shadow-sm border-0 mb-4 p-4" style="border-radius: 14px;">
+        <h4 class="fw-bold mb-3"><i class="bi bi-funnel text-primary me-2"></i>Filter Rental Properties</h4>
+        <form th:action="@{/properties}" method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold">Search Keywords</label>
+                <input type="text" name="keyword" th:value="${keyword}" class="form-control" placeholder="City, neighborhood, title...">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold">Property Type</label>
+                <select name="propertyType" class="form-select">
+                    <option value="" th:selected="${propertyType == null or propertyType == ''}">All Types</option>
+                    <option value="Apartment" th:selected="${propertyType == 'Apartment'}">Apartment</option>
+                    <option value="Villa" th:selected="${propertyType == 'Villa'}">Villa</option>
+                    <option value="Condo" th:selected="${propertyType == 'Condo'}">Condo</option>
+                    <option value="Studio" th:selected="${propertyType == 'Studio'}">Studio</option>
+                    <option value="Townhouse" th:selected="${propertyType == 'Townhouse'}">Townhouse</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold">Min Rent ($)</label>
+                <input type="number" name="minPrice" th:value="${minPrice}" class="form-control" placeholder="Min $">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold">Max Rent ($)</label>
+                <input type="number" name="maxPrice" th:value="${maxPrice}" class="form-control" placeholder="Max $">
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                    <i class="bi bi-search me-1"></i> Filter
+                </button>
+                <a th:href="@{/properties}" class="btn btn-outline-secondary py-2" title="Reset Filters">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Properties Grid -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">
+            Available Rentals (<span th:text="${properties != null ? properties.size() : 0}">0</span> results)
+        </h5>
+    </div>
+
+    <div class="row g-4" th:if="${properties != null and !properties.isEmpty()}">
+        <div class="col-md-4" th:each="prop : ${properties}">
+            <div class="card h-100 card-hover overflow-hidden border-0 shadow-sm">
+                <div class="position-relative" style="height: 220px;">
+                    <img th:src="${prop.imageUrl != null ? prop.imageUrl : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'}"
+                         class="w-100 h-100 object-fit-cover" alt="Property Image">
+                    <span class="position-absolute top-0 start-0 m-3 badge bg-dark bg-opacity-75 px-3 py-2" th:text="${prop.propertyType}">Apartment</span>
+                    <span class="position-absolute bottom-0 start-0 m-3 badge bg-primary px-3 py-2 fs-6">
+                        $<span th:text="${#numbers.formatDecimal(prop.price, 0, 'COMMA', 0, 'POINT')}">2,500</span>/month
+                    </span>
+                    <span class="position-absolute top-0 end-0 m-3 badge bg-light text-dark shadow-sm">
+                        <i class="bi bi-eye me-1"></i><span th:text="${prop.viewsCount}">0</span> views
+                    </span>
+                </div>
+                <div class="card-body p-4">
+                    <h5 class="card-title fw-bold text-truncate" th:text="${prop.title}">Property Title</h5>
+                    <p class="text-muted small mb-3">
+                        <i class="bi bi-geo-alt me-1 text-danger"></i>
+                        <span th:text="${prop.address} + ', ' + ${prop.city} + ', ' + ${prop.state}">City, State</span>
+                    </p>
+                    <p class="card-text text-muted small text-truncate" th:text="${prop.description}">Description</p>
+                    <div class="d-flex justify-content-between border-top pt-3 text-muted small">
+                        <span><i class="bi bi-door-open me-1"></i> <strong th:text="${prop.bedrooms}">2</strong> Beds</span>
+                        <span><i class="bi bi-droplet me-1"></i> <strong th:text="${prop.bathrooms}">2</strong> Baths</span>
+                        <span><i class="bi bi-arrows-fullscreen me-1"></i> <strong th:text="${prop.areaSqFt != null ? prop.areaSqFt : '1000'}">1000</strong> sqft</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 p-4 pt-0">
+                    <a th:href="@{/properties/{id}(id=${prop.id})}" class="btn btn-primary w-100">
+                        View Details &amp; Apply
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${properties == null or properties.isEmpty()}" class="card border-0 shadow-sm p-5 text-center">
+        <i class="bi bi-house-slash text-muted" style="font-size: 4rem;"></i>
+        <h4 class="fw-bold mt-3">No Properties Found</h4>
+        <p class="text-muted">Try adjusting your search criteria or resetting filters to see more results.</p>
+        <div>
+            <a th:href="@{/properties}" class="btn btn-primary">Reset Filters</a>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

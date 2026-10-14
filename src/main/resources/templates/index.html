@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: header('Home')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<!-- Hero Section -->
+<section class="py-5 bg-white border-bottom">
+    <div class="container py-4 text-center">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-3">
+            <i class="bi bi-patch-check-fill me-1"></i> Second Year B.Tech Java Project Demo
+        </span>
+        <h1 class="display-4 fw-bold text-dark mb-3">
+            Find, Rent &amp; Manage Properties <br class="d-none d-md-block"><span class="text-primary">All in One Platform</span>
+        </h1>
+        <p class="lead text-muted mx-auto mb-4" style="max-width: 650px;">
+            A comprehensive Real Estate Management System featuring dedicated portals for <strong>Tenants</strong>, <strong>Property Managers</strong>, and <strong>Administrators</strong>.
+        </p>
+
+        <!-- Search Bar -->
+        <div class="card shadow-sm border p-3 mx-auto" style="max-width: 850px; border-radius: 16px;">
+            <form th:action="@{/properties}" method="get" class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-geo-alt"></i></span>
+                        <input type="text" name="keyword" class="form-control border-start-0" placeholder="City, neighborhood, or keyword...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="propertyType" class="form-select">
+                        <option value="">All Property Types</option>
+                        <option value="Apartment">Apartment</option>
+                        <option value="Villa">Villa</option>
+                        <option value="Condo">Condo</option>
+                        <option value="Studio">Studio</option>
+                        <option value="Townhouse">Townhouse</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="bedrooms" class="form-select">
+                        <option value="">Bedrooms</option>
+                        <option value="1">1+ BHK</option>
+                        <option value="2">2+ BHK</option>
+                        <option value="3">3+ BHK</option>
+                        <option value="4">4+ BHK</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Role Portals Overview -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Dedicated Portals for Every User</h2>
+            <p class="text-muted">Designed according to project requirements with role-based access control.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Tenant Card -->
+            <div class="col-md-4">
+                <div class="card h-100 card-hover p-4 text-center border-0 shadow-sm">
+                    <div class="stat-icon bg-info-subtle text-info mx-auto mb-3">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <h4 class="fw-bold">Tenant Portal</h4>
+                    <p class="text-muted small">Search properties, apply online, manage rental agreements, and update personal rental history profile.</p>
+                    <div class="mt-auto">
+                        <a th:href="@{/tenant/dashboard}" class="btn btn-outline-info w-100">Access Tenant Portal</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Manager Card -->
+            <div class="col-md-4">
+                <div class="card h-100 card-hover p-4 text-center border-0 shadow-sm">
+                    <div class="stat-icon bg-success-subtle text-success mx-auto mb-3">
+                        <i class="bi bi-building-gear"></i>
+                    </div>
+                    <h4 class="fw-bold">Property Manager</h4>
+                    <p class="text-muted small">List &amp; update properties, review rental applications, create rental agreements, message tenants, and monitor listing analytics.</p>
+                    <div class="mt-auto">
+                        <a th:href="@{/manager/dashboard}" class="btn btn-outline-success w-100">Access Manager Portal</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Card -->
+            <div class="col-md-4">
+                <div class="card h-100 card-hover p-4 text-center border-0 shadow-sm">
+                    <div class="stat-icon bg-primary-subtle text-primary mx-auto mb-3">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h4 class="fw-bold">Administrator</h4>
+                    <p class="text-muted small">Oversee system, approve or reject listings, manage user accounts &amp; roles, configure system settings, and inspect activity logs.</p>
+                    <div class="mt-auto">
+                        <a th:href="@{/admin/dashboard}" class="btn btn-outline-primary w-100">Access Admin Portal</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Properties -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Featured Rental Listings</h2>
+                <p class="text-muted mb-0">Verified properties approved by our system administrator.</p>
+            </div>
+            <a th:href="@{/properties}" class="btn btn-outline-primary">View All Properties <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4" th:each="prop : ${featuredProperties}">
+                <div class="card h-100 card-hover overflow-hidden border-0 shadow-sm">
+                    <div class="position-relative" style="height: 220px;">
+                        <img th:src="${prop.imageUrl != null ? prop.imageUrl : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'}"
+                             class="w-100 h-100 object-fit-cover" alt="Property Image">
+                        <span class="position-absolute top-0 start-0 m-3 badge bg-dark bg-opacity-75 px-3 py-2" th:text="${prop.propertyType}">Apartment</span>
+                        <span class="position-absolute bottom-0 start-0 m-3 badge bg-primary px-3 py-2 fs-6">
+                            $<span th:text="${#numbers.formatDecimal(prop.price, 0, 'COMMA', 0, 'POINT')}">2,500</span>/month
+                        </span>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold text-truncate" th:text="${prop.title}">Downtown Luxury Loft</h5>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-geo-alt me-1 text-danger"></i>
+                            <span th:text="${prop.address} + ', ' + ${prop.city} + ', ' + ${prop.state}">San Francisco, CA</span>
+                        </p>
+                        <div class="d-flex justify-content-between border-top pt-3 text-muted small">
+                            <span><i class="bi bi-door-open me-1"></i> <strong th:text="${prop.bedrooms}">2</strong> Beds</span>
+                            <span><i class="bi bi-droplet me-1"></i> <strong th:text="${prop.bathrooms}">2</strong> Baths</span>
+                            <span><i class="bi bi-arrows-fullscreen me-1"></i> <strong th:text="${prop.areaSqFt != null ? prop.areaSqFt : '1100'}">1100</strong> sqft</span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 p-4 pt-0">
+                        <a th:href="@{/properties/{id}(id=${prop.id})}" class="btn btn-primary w-100">View Details &amp; Apply</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

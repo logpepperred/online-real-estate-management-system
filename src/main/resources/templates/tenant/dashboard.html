@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Tenant Dashboard')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-2 mb-4">
+            <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
+                <div class="text-center py-3 border-bottom mb-3">
+                    <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-2">
+                        <i class="bi bi-person-fill fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0" th:text="${currentUser.name}">Alex Johnson</h6>
+                    <small class="badge bg-info-subtle text-info">Tenant</small>
+                </div>
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold text-primary" th:href="@{/tenant/dashboard}">
+                            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/tenant/search}">
+                            <i class="bi bi-search me-2"></i> Find Properties
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/tenant/applications}">
+                            <i class="bi bi-file-earmark-text me-2"></i> My Applications
+                            <span th:if="${pendingApplicationsCount > 0}" class="badge bg-warning text-dark ms-auto" th:text="${pendingApplicationsCount}">1</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/tenant/agreements}">
+                            <i class="bi bi-file-earmark-check me-2"></i> Rental Agreements
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/tenant/profile}">
+                            <i class="bi bi-person-circle me-2"></i> Profile &amp; History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/tenant/notifications}">
+                            <i class="bi bi-bell me-2"></i> Notifications
+                            <span th:if="${unreadNotificationsCount > 0}" class="badge bg-danger ms-auto" th:text="${unreadNotificationsCount}">1</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/messages}">
+                            <i class="bi bi-chat-dots me-2"></i> Direct Messages
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1">Welcome back, <span th:text="${currentUser.name}">Alex</span>!</h3>
+                    <p class="text-muted mb-0">Track your rental applications, active lease terms, and manager communications.</p>
+                </div>
+                <a th:href="@{/tenant/search}" class="btn btn-primary">
+                    <i class="bi bi-search me-1"></i> Search Available Rentals
+                </a>
+            </div>
+
+            <!-- Stats Metric Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted small fw-semibold">APPLICATIONS SUBMITTED</span>
+                                <h3 class="fw-bold text-dark mt-1 mb-0" th:text="${totalApplications}">1</h3>
+                            </div>
+                            <div class="stat-icon bg-primary-subtle text-primary">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted small fw-semibold">PENDING REVIEW</span>
+                                <h3 class="fw-bold text-warning mt-1 mb-0" th:text="${pendingApplicationsCount}">0</h3>
+                            </div>
+                            <div class="stat-icon bg-warning-subtle text-warning">
+                                <i class="bi bi-hourglass-split"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted small fw-semibold">ACTIVE LEASES</span>
+                                <h3 class="fw-bold text-success mt-1 mb-0" th:text="${activeAgreementsCount}">1</h3>
+                            </div>
+                            <div class="stat-icon bg-success-subtle text-success">
+                                <i class="bi bi-house-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted small fw-semibold">NOTIFICATIONS</span>
+                                <h3 class="fw-bold text-info mt-1 mb-0" th:text="${unreadNotificationsCount}">1</h3>
+                            </div>
+                            <div class="stat-icon bg-info-subtle text-info">
+                                <i class="bi bi-bell-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Left: Active Lease & Applications -->
+                <div class="col-lg-8">
+                    <!-- Current Active Rental Agreement -->
+                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;" th:if="${activeAgreements != null and !activeAgreements.isEmpty()}">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="fw-bold mb-0 text-success"><i class="bi bi-check2-circle me-2"></i>My Active Lease</h5>
+                        </div>
+                        <div class="card-body p-4" th:each="agr : ${activeAgreements}">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-1" th:text="${agr.property.title}">Penthouse Suite</h5>
+                                    <p class="text-muted small mb-0">
+                                        <i class="bi bi-geo-alt text-danger me-1"></i><span th:text="${agr.property.address} + ', ' + ${agr.property.city}">Address</span>
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    <h4 class="fw-bold text-primary mb-0">$<span th:text="${#numbers.formatDecimal(agr.monthlyRent, 0, 'COMMA', 0, 'POINT')}">4,900</span></h4>
+                                    <span class="text-muted small">per month</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-light rounded border mb-3 small">
+                                <div class="row">
+                                    <div class="col-md-6 mb-2"><strong>Lease Term:</strong> <span th:text="${agr.startDate} + ' to ' + ${agr.endDate}">Dates</span></div>
+                                    <div class="col-md-6 mb-2"><strong>Manager:</strong> <span th:text="${agr.manager.name}">Sarah Jenkins</span></div>
+                                    <div class="col-md-6"><strong>Security Deposit:</strong> $<span th:text="${agr.securityDeposit}">4900</span></div>
+                                    <div class="col-md-6"><strong>Status:</strong> <span class="badge bg-success">Active</span></div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2">
+                                <a th:href="@{/messages(with=${agr.manager.id}, propertyId=${agr.property.id})}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-chat-dots me-1"></i> Contact Manager
+                                </a>
+                                <a th:href="@{/tenant/agreements}" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-file-text me-1"></i> View Full Lease Terms
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rental Applications Tracking -->
+                    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Application Status Tracking</h5>
+                            <a th:href="@{/tenant/applications}" class="btn btn-outline-secondary btn-sm">All Applications</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Property</th>
+                                        <th>Move-in Date</th>
+                                        <th>Status</th>
+                                        <th>Applied Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="app : ${recentApplications}">
+                                        <td>
+                                            <a th:href="@{/properties/{id}(id=${app.property.id})}" target="_blank" class="fw-bold text-decoration-none text-dark" th:text="${app.property.title}">Title</a>
+                                            <small class="text-muted d-block" th:text="${app.property.city}">City</small>
+                                        </td>
+                                        <td th:text="${app.moveInDate}">2026-11-01</td>
+                                        <td>
+                                            <span th:if="${app.status.name() == 'PENDING'}" class="badge bg-warning text-dark"><i class="bi bi-hourglass me-1"></i> Under Review</span>
+                                            <span th:if="${app.status.name() == 'APPROVED'}" class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Approved</span>
+                                            <span th:if="${app.status.name() == 'REJECTED'}" class="badge bg-danger"><i class="bi bi-x-circle me-1"></i> Not Accepted</span>
+                                        </td>
+                                        <td class="text-muted small" th:text="${#temporals.format(app.appliedAt, 'MMM dd, yyyy')}">Oct 14, 2026</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Profile Overview & Recent Notifications -->
+                <div class="col-lg-4">
+                    <!-- Profile Card -->
+                    <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 12px;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold mb-0">Profile Overview</h5>
+                            <a th:href="@{/tenant/profile}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Edit</a>
+                        </div>
+                        <div class="small text-muted mb-2"><strong>Full Name:</strong> <span class="text-dark" th:text="${currentUser.name}">Alex</span></div>
+                        <div class="small text-muted mb-2"><strong>Email:</strong> <span class="text-dark" th:text="${currentUser.email}">alex@test.com</span></div>
+                        <div class="small text-muted mb-3"><strong>Phone:</strong> <span class="text-dark" th:text="${currentUser.phoneNumber != null ? currentUser.phoneNumber : 'Not set'}">+1 555-0000</span></div>
+                        <div class="p-3 bg-light rounded border">
+                            <small class="fw-bold d-block text-secondary mb-1">Rental History Notes:</small>
+                            <p class="small text-muted mb-0" th:text="${currentUser.rentalHistoryNotes != null ? currentUser.rentalHistoryNotes : 'No rental history entered yet. Add details in your profile to boost application approvals.'}">
+                                Rental history details...
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Notifications Card -->
+                    <div class="card border-0 shadow-sm p-4" style="border-radius: 12px;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold mb-0"><i class="bi bi-bell text-info me-2"></i>Updates</h5>
+                            <a th:href="@{/tenant/notifications}" class="small text-primary text-decoration-none">View All</a>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            <div th:each="n : ${recentNotifications}" class="list-group-item px-0 py-2 border-0 border-bottom">
+                                <div class="d-flex justify-content-between">
+                                    <span class="fw-bold small" th:text="${n.title}">Notification Title</span>
+                                    <small class="text-muted" style="font-size: 10px;" th:text="${#temporals.format(n.createdAt, 'MMM dd')}">Oct 14</small>
+                                </div>
+                                <p class="text-muted small mb-0" style="font-size: 12px;" th:text="${n.message}">Notification message text</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Admin Dashboard')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-2 mb-4">
+            <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
+                <div class="text-center py-3 border-bottom mb-3">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-2">
+                        <i class="bi bi-shield-lock fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0" th:text="${currentUser.name}">Administrator</h6>
+                    <small class="badge bg-danger-subtle text-danger">System Admin</small>
+                </div>
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold text-primary" th:href="@{/admin/dashboard}">
+                            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/users}">
+                            <i class="bi bi-people me-2"></i> User Management
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/properties}">
+                            <i class="bi bi-houses me-2"></i> Property Approvals
+                            <span th:if="${pendingListings > 0}" class="badge bg-warning text-dark ms-auto" th:text="${pendingListings}">1</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/activity-logs}">
+                            <i class="bi bi-clock-history me-2"></i> Activity Logs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/settings}">
+                            <i class="bi bi-gear me-2"></i> System Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/reports}">
+                            <i class="bi bi-graph-up-arrow me-2"></i> Reports &amp; Analytics
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold text-dark mb-1">Administrator Dashboard</h3>
+                    <p class="text-muted mb-0">System oversight, property approvals, user control &amp; configurations.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/admin/properties}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-check2-circle me-1"></i> Review Listings (<span th:text="${pendingListings}">0</span>)
+                    </a>
+                    <a th:href="@{/admin/users}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-person-plus me-1"></i> Manage Users
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Metric Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted small fw-semibold">TOTAL USERS</span>
+                                <h3 class="fw-bold text-dark mt-1 mb-0" th:text="${totalUsers}">5</h3>
+                            </div>
+                            <div class="stat-icon bg-primary-subtle text-primary">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted small fw-semibold">TOTAL PROPERTIES</span>
+                                <h3 class="fw-bold text-dark mt-1 mb-0" th:text="${totalProperties}">6</h3>
+                            </div>
+                            <div class="stat-icon bg-info-subtle text-info">
+                                <i class="bi bi-building"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted small fw-semibold">PENDING APPROVAL</span>
+                                <h3 class="fw-bold text-warning mt-1 mb-0" th:text="${pendingListings}">1</h3>
+                            </div>
+                            <div class="stat-icon bg-warning-subtle text-warning">
+                                <i class="bi bi-hourglass-split"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm p-3 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted small fw-semibold">ACTIVE LEASES</span>
+                                <h3 class="fw-bold text-success mt-1 mb-0" th:text="${activeAgreements}">1</h3>
+                            </div>
+                            <div class="stat-icon bg-success-subtle text-success">
+                                <i class="bi bi-file-earmark-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Listings Awaiting Approval -->
+            <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-clipboard-check text-warning me-2"></i>Pending Property Approvals</h5>
+                    <a th:href="@{/admin/properties}" class="btn btn-outline-secondary btn-sm">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Property</th>
+                                <th>Manager</th>
+                                <th>Location</th>
+                                <th>Rent / Month</th>
+                                <th>Submitted On</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="prop : ${allProperties}" th:if="${prop.status.name() == 'PENDING_APPROVAL'}">
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img th:src="${prop.imageUrl != null ? prop.imageUrl : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=100&q=80'}"
+                                             style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover;">
+                                        <div>
+                                            <div class="fw-bold" th:text="${prop.title}">Property Title</div>
+                                            <small class="badge bg-light text-muted" th:text="${prop.propertyType}">Apartment</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td th:text="${prop.manager.name}">Sarah Jenkins</td>
+                                <td th:text="${prop.city} + ', ' + ${prop.state}">Chicago, IL</td>
+                                <td class="fw-bold text-primary">$<span th:text="${#numbers.formatDecimal(prop.price, 0, 'COMMA', 0, 'POINT')}">2,400</span></td>
+                                <td class="text-muted small" th:text="${#temporals.format(prop.createdAt, 'MMM dd, yyyy')}">Oct 14, 2026</td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <form th:action="@{/admin/properties/approve/{id}(id=${prop.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Approve</button>
+                                        </form>
+                                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" th:data-bs-target="'#rejectModal' + ${prop.id}">
+                                            <i class="bi bi-x-lg"></i> Reject
+                                        </button>
+                                    </div>
+
+                                    <!-- Reject Reason Modal -->
+                                    <div class="modal fade" th:id="'rejectModal' + ${prop.id}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content text-start">
+                                                <form th:action="@{/admin/properties/reject/{id}(id=${prop.id})}" method="post">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold">Reject Listing</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p class="small text-muted">Provide feedback to the manager regarding why this listing is rejected:</p>
+                                                        <textarea name="reason" class="form-control" rows="3" placeholder="e.g. Missing required proof of ownership or photo guidelines..." required></textarea>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-danger">Confirm Rejection</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Activity Monitoring Table -->
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-activity text-primary me-2"></i>Real-Time Activity Monitor</h5>
+                    <a th:href="@{/admin/activity-logs}" class="btn btn-outline-secondary btn-sm">Full Audit Trail</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="log : ${recentActivities}">
+                                <td class="text-muted small" th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-10-14 16:00:00</td>
+                                <td>
+                                    <span class="fw-semibold" th:text="${log.user != null ? log.user.name : 'System'}">Alex Johnson</span>
+                                    <small th:if="${log.user != null}" class="text-muted d-block" th:text="${log.user.email}">user@test.com</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary-subtle text-primary" th:text="${log.action}">PROPERTY_CREATED</span>
+                                </td>
+                                <td class="text-secondary small" th:text="${log.details}">Action details...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

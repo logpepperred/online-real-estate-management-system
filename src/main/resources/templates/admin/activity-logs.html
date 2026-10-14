@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Activity Monitoring')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-2 mb-4">
+            <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/users}"><i class="bi bi-people me-2"></i> User Management</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/properties}"><i class="bi bi-houses me-2"></i> Property Approvals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold text-primary" th:href="@{/admin/activity-logs}"><i class="bi bi-clock-history me-2"></i> Activity Logs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/settings}"><i class="bi bi-gear me-2"></i> System Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/reports}"><i class="bi bi-graph-up-arrow me-2"></i> Reports &amp; Analytics</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1">Activity Monitoring &amp; Audit Logs</h3>
+                    <p class="text-muted mb-0">Complete audit trail of system activities, property modifications, user registrations, and approvals.</p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Timestamp</th>
+                                <th>Triggered By</th>
+                                <th>Action Event</th>
+                                <th>Audit Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="log : ${logs}">
+                                <td class="text-muted" th:text="${log.id}">1</td>
+                                <td class="text-muted small" th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-10-14 16:00:00</td>
+                                <td>
+                                    <div th:if="${log.user != null}">
+                                        <span class="fw-semibold" th:text="${log.user.name}">Alex Johnson</span>
+                                        <small class="text-muted d-block" th:text="${log.user.role.name()}">ROLE_TENANT</small>
+                                    </div>
+                                    <span th:unless="${log.user != null}" class="badge bg-secondary-subtle text-secondary">SYSTEM EVENT</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary-subtle text-primary" th:text="${log.action}">PROPERTY_CREATED</span>
+                                </td>
+                                <td class="text-secondary small" th:text="${log.details}">Action details description</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

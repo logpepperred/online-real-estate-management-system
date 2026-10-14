@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Performance Reports')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-2 mb-4">
+            <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/users}"><i class="bi bi-people me-2"></i> User Management</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/properties}"><i class="bi bi-houses me-2"></i> Property Approvals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/activity-logs}"><i class="bi bi-clock-history me-2"></i> Activity Logs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/admin/settings}"><i class="bi bi-gear me-2"></i> System Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold text-primary" th:href="@{/admin/reports}"><i class="bi bi-graph-up-arrow me-2"></i> Reports &amp; Analytics</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1">System Performance &amp; Analytics Reports</h3>
+                    <p class="text-muted mb-0">Visual breakdown of user engagement, property listing pipelines, and lease performance.</p>
+                </div>
+            </div>
+
+            <!-- Metric Summary Table -->
+            <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-table text-primary me-2"></i>Core System Performance Summary</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle mb-0 text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Category</th>
+                                <th>Total Count</th>
+                                <th>Active / Approved</th>
+                                <th>Pending</th>
+                                <th>Conversion / Ratio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold text-start"><i class="bi bi-building text-primary me-2"></i>Properties</td>
+                                <td th:text="${totalProperties}">6</td>
+                                <td class="text-success fw-bold" th:text="${approvedProperties}">4</td>
+                                <td class="text-warning fw-bold" th:text="${pendingProperties}">1</td>
+                                <td><span class="badge bg-success">Healthy</span></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-start"><i class="bi bi-file-earmark-person text-info me-2"></i>Rental Applications</td>
+                                <td th:text="${totalApplications}">2</td>
+                                <td class="text-success fw-bold" th:text="${approvedApplications}">1</td>
+                                <td class="text-warning fw-bold" th:text="${pendingApplications}">1</td>
+                                <td><span class="badge bg-info">50% Approved</span></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-start"><i class="bi bi-file-text text-success me-2"></i>Rental Agreements</td>
+                                <td th:text="${totalAgreements}">1</td>
+                                <td class="text-success fw-bold" th:text="${activeAgreements}">1</td>
+                                <td>-</td>
+                                <td><span class="badge bg-primary">100% Active</span></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-start"><i class="bi bi-people text-secondary me-2"></i>Platform Users</td>
+                                <td th:text="${totalUsers}">5</td>
+                                <td><span th:text="${totalTenants}">2</span> Tenants</td>
+                                <td><span th:text="${totalManagers}">2</span> Managers</td>
+                                <td><span class="badge bg-dark">1 Admin</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="row g-4">
+                <!-- Property Distribution Doughnut Chart -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm p-4" style="border-radius: 12px;">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-pie-chart text-primary me-2"></i>Property Listing Status</h5>
+                        <div style="height: 280px;" class="d-flex align-items-center justify-content-center">
+                            <canvas id="propertyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Breakdown Bar Chart -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm p-4" style="border-radius: 12px;">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart text-success me-2"></i>Registered User Distribution</h5>
+                        <div style="height: 280px;" class="d-flex align-items-center justify-content-center">
+                            <canvas id="userChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const approvedProps = /*[[${approvedProperties}]]*/ 4;
+    const pendingProps = /*[[${pendingProperties}]]*/ 1;
+    const rentedProps = /*[[${rentedProperties}]]*/ 1;
+
+    const totalManagers = /*[[${totalManagers}]]*/ 2;
+    const totalTenants = /*[[${totalTenants}]]*/ 2;
+
+    // Property Doughnut Chart
+    const ctxProp = document.getElementById('propertyChart').getContext('2d');
+    new Chart(ctxProp, {
+        type: 'doughnut',
+        data: {
+            labels: ['Approved (Available)', 'Pending Admin Review', 'Currently Rented'],
+            datasets: [{
+                data: [approvedProps, pendingProps, rentedProps],
+                backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // User Bar Chart
+    const ctxUser = document.getElementById('userChart').getContext('2d');
+    new Chart(ctxUser, {
+        type: 'bar',
+        data: {
+            labels: ['Tenants', 'Property Managers', 'Administrators'],
+            datasets: [{
+                label: 'Registered Accounts',
+                data: [totalTenants, totalManagers, 1],
+                backgroundColor: ['#06b6d4', '#10b981', '#ef4444'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+    /*]]>*/
+</script>
+
+</body>
+</html>

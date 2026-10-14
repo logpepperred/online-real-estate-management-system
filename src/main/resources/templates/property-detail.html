@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: header(${property.title})}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/properties}">Properties</a></li>
+            <li class="breadcrumb-item active" th:text="${property.title}">Detail</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Left: Property Images and Description -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm overflow-hidden mb-4" style="border-radius: 14px;">
+                <img th:src="${property.imageUrl != null ? property.imageUrl : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80'}"
+                     class="w-100 object-fit-cover" style="max-height: 450px;" alt="Property Image">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <span class="badge bg-primary px-3 py-1 mb-2" th:text="${property.propertyType}">Apartment</span>
+                            <span th:if="${property.status.name() == 'APPROVED'}" class="badge bg-success px-3 py-1 mb-2">Available for Rent</span>
+                            <span th:if="${property.status.name() == 'RENTED'}" class="badge bg-secondary px-3 py-1 mb-2">Currently Rented</span>
+                            <h2 class="fw-bold mb-1" th:text="${property.title}">Luxury Downtown Loft</h2>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                <span th:text="${property.address} + ', ' + ${property.city} + ', ' + ${property.state} + ' ' + ${property.zipCode}">Address</span>
+                            </p>
+                        </div>
+                        <div class="text-end">
+                            <h2 class="fw-bold text-primary mb-0">$<span th:text="${#numbers.formatDecimal(property.price, 0, 'COMMA', 0, 'POINT')}">2,500</span></h2>
+                            <span class="text-muted small">per month</span>
+                        </div>
+                    </div>
+
+                    <!-- Key Amenities / Specs -->
+                    <div class="row g-3 py-3 border-top border-bottom my-3 text-center">
+                        <div class="col-3 border-end">
+                            <div class="text-muted small"><i class="bi bi-door-open fs-4 d-block text-primary"></i> Bedrooms</div>
+                            <h5 class="fw-bold mb-0" th:text="${property.bedrooms}">2</h5>
+                        </div>
+                        <div class="col-3 border-end">
+                            <div class="text-muted small"><i class="bi bi-droplet fs-4 d-block text-primary"></i> Bathrooms</div>
+                            <h5 class="fw-bold mb-0" th:text="${property.bathrooms}">2</h5>
+                        </div>
+                        <div class="col-3 border-end">
+                            <div class="text-muted small"><i class="bi bi-arrows-fullscreen fs-4 d-block text-primary"></i> Area</div>
+                            <h5 class="fw-bold mb-0"><span th:text="${property.areaSqFt != null ? property.areaSqFt : '1,100'}">1100</span> sqft</h5>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-muted small"><i class="bi bi-cash-stack fs-4 d-block text-primary"></i> Deposit</div>
+                            <h5 class="fw-bold mb-0">$<span th:text="${#numbers.formatDecimal(property.securityDeposit != null ? property.securityDeposit : property.price, 0, 'COMMA', 0, 'POINT')}">2,500</span></h5>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mt-4 mb-2">About This Property</h5>
+                    <p class="text-secondary" style="line-height: 1.8;" th:text="${property.description}">
+                        Property description details...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Action Card and Manager Info -->
+        <div class="col-lg-4">
+            <!-- Apply Card -->
+            <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 14px;">
+                <h4 class="fw-bold mb-3">Interested in this property?</h4>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Monthly Rent:</span>
+                        <strong class="text-dark">$<span th:text="${#numbers.formatDecimal(property.price, 0, 'COMMA', 0, 'POINT')}">2,500</span></strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Security Deposit:</span>
+                        <strong class="text-dark">$<span th:text="${#numbers.formatDecimal(property.securityDeposit != null ? property.securityDeposit : property.price, 0, 'COMMA', 0, 'POINT')}">2,500</span></strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Status:</span>
+                        <span th:if="${property.status.name() == 'APPROVED'}" class="badge bg-success-subtle text-success">Available</span>
+                        <span th:if="${property.status.name() == 'RENTED'}" class="badge bg-secondary-subtle text-secondary">Rented</span>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <!-- If Tenant logged in and property approved -->
+                    <a sec:authorize="hasRole('TENANT')" th:if="${property.status.name() == 'APPROVED'}"
+                       th:href="@{/tenant/apply/{id}(id=${property.id})}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-file-earmark-text me-1"></i> Apply for Rental
+                    </a>
+
+                    <!-- If not logged in -->
+                    <a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Log In to Apply
+                    </a>
+
+                    <!-- Direct Message Manager -->
+                    <a sec:authorize="isAuthenticated()" th:href="@{/messages(with=${property.manager.id}, propertyId=${property.id})}"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-chat-dots me-1"></i> Send Inquiry Message
+                    </a>
+                </div>
+            </div>
+
+            <!-- Property Manager Profile Card -->
+            <div class="card border-0 shadow-sm p-4" style="border-radius: 14px;">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 20px;">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0" th:text="${property.manager.name}">Sarah Jenkins</h6>
+                        <span class="badge bg-info-subtle text-info">Licensed Manager</span>
+                    </div>
+                </div>
+                <p class="text-muted small mb-3" th:text="${property.manager.bio != null ? property.manager.bio : 'Experienced property manager committed to maintaining quality homes and responsive tenant service.'}">
+                    Manager biography...
+                </p>
+                <div class="small text-muted border-top pt-3">
+                    <div class="mb-1"><i class="bi bi-envelope me-2 text-primary"></i><span th:text="${property.manager.email}">manager@realestate.com</span></div>
+                    <div th:if="${property.manager.phoneNumber}"><i class="bi bi-telephone me-2 text-primary"></i><span th:text="${property.manager.phoneNumber}">+1 555-1234</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

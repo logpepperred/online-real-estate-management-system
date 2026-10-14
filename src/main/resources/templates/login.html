@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Login')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 p-4" style="border-radius: 16px;">
+                <div class="text-center mb-4">
+                    <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-2">
+                        <i class="bi bi-shield-lock fs-3"></i>
+                    </div>
+                    <h3 class="fw-bold">Sign In to EstateHub</h3>
+                    <p class="text-muted small">Choose your role or enter credentials to access your dashboard.</p>
+                </div>
+
+                <form th:action="@{/login}" method="post" id="loginForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-envelope"></i></span>
+                            <input type="email" id="emailInput" name="email" class="form-control" placeholder="name@example.com" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-lock"></i></span>
+                            <input type="password" id="passwordInput" name="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mb-3">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Log In
+                    </button>
+                </form>
+
+                <!-- Quick Demo Fill Buttons (For Viva / Evaluation) -->
+                <div class="card bg-body-tertiary border p-3 rounded-3 mt-2">
+                    <div class="text-center mb-2">
+                        <small class="fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px;">Quick Demo Logins (Viva Mode)</small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-danger text-start d-flex justify-content-between align-items-center"
+                                onclick="fillCredentials('admin@realestate.com', 'admin123')">
+                            <span><i class="bi bi-shield-shaded me-1"></i> <strong>Admin:</strong> admin@realestate.com</span>
+                            <span class="badge bg-danger">Fill</span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-success text-start d-flex justify-content-between align-items-center"
+                                onclick="fillCredentials('manager@realestate.com', 'manager123')">
+                            <span><i class="bi bi-building-gear me-1"></i> <strong>Manager:</strong> manager@realestate.com</span>
+                            <span class="badge bg-success">Fill</span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-info text-start d-flex justify-content-between align-items-center"
+                                onclick="fillCredentials('tenant@realestate.com', 'tenant123')">
+                            <span><i class="bi bi-person-badge me-1"></i> <strong>Tenant:</strong> tenant@realestate.com</span>
+                            <span class="badge bg-info">Fill</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <span class="text-muted small">Don't have an account yet?</span>
+                    <a th:href="@{/register}" class="fw-semibold text-primary ms-1">Create an Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function fillCredentials(email, password) {
+        document.getElementById('emailInput').value = email;
+        document.getElementById('passwordInput').value = password;
+    }
+</script>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

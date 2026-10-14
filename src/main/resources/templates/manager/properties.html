@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('My Properties')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-2 mb-4">
+            <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/dashboard}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold text-primary" th:href="@{/manager/properties}"><i class="bi bi-houses me-2"></i> My Properties</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/applications}"><i class="bi bi-inbox me-2"></i> Rental Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/agreements}"><i class="bi bi-file-earmark-check me-2"></i> Rental Agreements</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/messages}"><i class="bi bi-chat-dots me-2"></i> Tenant Messages</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/analytics}"><i class="bi bi-graph-up me-2"></i> Listing Analytics</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1">My Managed Properties</h3>
+                    <p class="text-muted mb-0">Create new listings, edit details, and track approval and occupancy status.</p>
+                </div>
+                <a th:href="@{/manager/properties/new}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i> Add New Property Listing
+                </a>
+            </div>
+
+            <!-- Properties Table -->
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Property</th>
+                                <th>Location</th>
+                                <th>Rent / Month</th>
+                                <th>Bed/Bath</th>
+                                <th>Status</th>
+                                <th>Views</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="prop : ${properties}">
+                                <td class="text-muted" th:text="${prop.id}">1</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img th:src="${prop.imageUrl != null ? prop.imageUrl : 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=100&q=80'}"
+                                             style="width: 54px; height: 54px; border-radius: 8px; object-fit: cover;">
+                                        <div>
+                                            <a th:href="@{/properties/{id}(id=${prop.id})}" target="_blank" class="fw-bold text-decoration-none text-dark" th:text="${prop.title}">Property Title</a>
+                                            <span class="badge bg-light text-secondary border d-block mt-1" style="width: fit-content;" th:text="${prop.propertyType}">Apartment</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div th:text="${prop.city} + ', ' + ${prop.state}">San Francisco, CA</div>
+                                    <small class="text-muted" th:text="${prop.address}">450 Market Street</small>
+                                </td>
+                                <td class="fw-bold text-primary">$<span th:text="${#numbers.formatDecimal(prop.price, 0, 'COMMA', 0, 'POINT')}">2,800</span></td>
+                                <td class="small text-muted"><span th:text="${prop.bedrooms}">2</span> BHK / <span th:text="${prop.bathrooms}">2</span> Bath</td>
+                                <td>
+                                    <span th:if="${prop.status.name() == 'PENDING_APPROVAL'}" class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i> Under Admin Review</span>
+                                    <span th:if="${prop.status.name() == 'APPROVED'}" class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Live &amp; Available</span>
+                                    <span th:if="${prop.status.name() == 'REJECTED'}" class="badge bg-danger"><i class="bi bi-x-circle me-1"></i> Rejected</span>
+                                    <span th:if="${prop.status.name() == 'RENTED'}" class="badge bg-primary"><i class="bi bi-key me-1"></i> Rented</span>
+
+                                    <div th:if="${prop.rejectionReason != null}" class="text-danger small mt-1" style="font-size: 11px;">
+                                        Feedback: <span th:text="${prop.rejectionReason}">Reason</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted small"><i class="bi bi-eye me-1"></i><span th:text="${prop.viewsCount}">0</span></td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a th:href="@{/manager/properties/edit/{id}(id=${prop.id})}" class="btn btn-outline-secondary" title="Edit Listing">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form th:action="@{/manager/properties/delete/{id}(id=${prop.id})}" method="post" class="d-inline"
+                                              onsubmit="return confirm('Are you sure you want to delete this property listing?');">
+                                            <button type="submit" class="btn btn-outline-danger" title="Delete Listing">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${properties == null or properties.isEmpty()}" class="card border-0 shadow-sm p-5 text-center mt-3">
+                <i class="bi bi-buildings text-muted" style="font-size: 3rem;"></i>
+                <h5 class="fw-bold mt-3">No Properties Listed Yet</h5>
+                <p class="text-muted">Start by adding your first rental property listing.</p>
+                <div>
+                    <a th:href="@{/manager/properties/new}" class="btn btn-primary">Add Property</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

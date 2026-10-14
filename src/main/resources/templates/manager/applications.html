@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Rental Applications')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-2 mb-4">
+            <div class="card border-0 shadow-sm p-3" style="border-radius: 12px;">
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/dashboard}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/properties}"><i class="bi bi-houses me-2"></i> My Properties</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold text-primary" th:href="@{/manager/applications}"><i class="bi bi-inbox me-2"></i> Rental Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/agreements}"><i class="bi bi-file-earmark-check me-2"></i> Rental Agreements</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/messages}"><i class="bi bi-chat-dots me-2"></i> Tenant Messages</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-secondary" th:href="@{/manager/analytics}"><i class="bi bi-graph-up me-2"></i> Listing Analytics</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1">Incoming Rental Applications</h3>
+                    <p class="text-muted mb-0">Evaluate tenant credentials, employment, income, and issue rental agreements.</p>
+                </div>
+            </div>
+
+            <!-- Applications Table -->
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Tenant Details</th>
+                                <th>Property Applied</th>
+                                <th>Move-in Date</th>
+                                <th>Occupation &amp; Income</th>
+                                <th>Tenant Notes</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="app : ${applications}">
+                                <td class="text-muted" th:text="${app.id}">1</td>
+                                <td>
+                                    <div class="fw-bold" th:text="${app.tenant.name}">Alex Johnson</div>
+                                    <small class="text-muted" th:text="${app.tenant.email}">alex@test.com</small>
+                                    <div th:if="${app.tenant.phoneNumber}" class="small text-muted" th:text="${app.tenant.phoneNumber}">+1 555-0000</div>
+                                </td>
+                                <td>
+                                    <a th:href="@{/properties/{id}(id=${app.property.id})}" target="_blank" class="fw-semibold text-decoration-none text-dark" th:text="${app.property.title}">Property Title</a>
+                                    <div class="small text-primary fw-bold">$<span th:text="${#numbers.formatDecimal(app.property.price, 0, 'COMMA', 0, 'POINT')}">2,500</span>/mo</div>
+                                </td>
+                                <td th:text="${app.moveInDate}">2026-11-01</td>
+                                <td>
+                                    <div class="fw-semibold" th:text="${app.occupation}">Software Engineer</div>
+                                    <small class="text-success fw-bold">$<span th:text="${#numbers.formatDecimal(app.monthlyIncome != null ? app.monthlyIncome : 0, 0, 'COMMA', 0, 'POINT')}">6,000</span> /mo</small>
+                                </td>
+                                <td class="small text-muted" style="max-width: 200px;">
+                                    <span th:text="${app.notes}">Notes...</span>
+                                </td>
+                                <td>
+                                    <span th:if="${app.status.name() == 'PENDING'}" class="badge bg-warning text-dark"><i class="bi bi-hourglass me-1"></i> Under Review</span>
+                                    <span th:if="${app.status.name() == 'APPROVED'}" class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Approved</span>
+                                    <span th:if="${app.status.name() == 'REJECTED'}" class="badge bg-danger"><i class="bi bi-x-circle me-1"></i> Rejected</span>
+
+                                    <div th:if="${app.rejectionReason != null}" class="text-danger small mt-1" style="font-size: 11px;">
+                                        Reason: <span th:text="${app.rejectionReason}">Reason</span>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <!-- If Pending: Accept / Reject -->
+                                        <form th:if="${app.status.name() == 'PENDING'}" th:action="@{/manager/applications/approve/{id}(id=${app.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-success" title="Approve Application"><i class="bi bi-check-lg"></i> Accept</button>
+                                        </form>
+                                        <button th:if="${app.status.name() == 'PENDING'}" type="button" class="btn btn-outline-danger" data-bs-toggle="modal" th:data-bs-target="'#rejectModal' + ${app.id}">
+                                            <i class="bi bi-x-lg"></i> Reject
+                                        </button>
+
+                                        <!-- If Approved: Create Agreement -->
+                                        <a th:if="${app.status.name() == 'APPROVED'}" th:href="@{/manager/agreements/new(applicationId=${app.id})}" class="btn btn-primary">
+                                            <i class="bi bi-file-earmark-plus me-1"></i> Issue Agreement
+                                        </a>
+
+                                        <!-- Direct message tenant -->
+                                        <a th:href="@{/messages(with=${app.tenant.id}, propertyId=${app.property.id})}" class="btn btn-outline-secondary" title="Message Applicant">
+                                            <i class="bi bi-chat-text"></i>
+                                        </a>
+                                    </div>
+
+                                    <!-- Reject Modal -->
+                                    <div class="modal fade" th:id="'rejectModal' + ${app.id}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content text-start">
+                                                <form th:action="@{/manager/applications/reject/{id}(id=${app.id})}" method="post">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fw-bold">Reject Rental Application</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p class="small text-muted">Provide feedback reason to applicant:</p>
+                                                        <textarea name="reason" class="form-control" rows="3" placeholder="e.g. Income requirement not met or chosen another candidate..." required></textarea>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-danger">Confirm Rejection</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${applications == null or applications.isEmpty()}" class="card border-0 shadow-sm p-5 text-center mt-3">
+                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                <h5 class="fw-bold mt-3">No Rental Applications Yet</h5>
+                <p class="text-muted">Applications submitted by interested tenants will appear here.</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: header('Register')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 p-4" style="border-radius: 16px;">
+                <div class="text-center mb-4">
+                    <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center p-3 mb-2">
+                        <i class="bi bi-person-plus fs-3"></i>
+                    </div>
+                    <h3 class="fw-bold">Create an Account</h3>
+                    <p class="text-muted small">Join EstateHub as a Tenant looking for homes or as a Property Manager.</p>
+                </div>
+
+                <form th:action="@{/register}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Select Account Type</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="role" id="roleTenant" value="ROLE_TENANT" checked>
+                                <label class="btn btn-outline-primary w-100 py-2 d-flex flex-column align-items-center" for="roleTenant">
+                                    <i class="bi bi-person-fill fs-4 mb-1"></i>
+                                    <span class="fw-semibold">Tenant</span>
+                                    <small class="text-muted" style="font-size: 11px;">Rent &amp; Discover</small>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="role" id="roleManager" value="ROLE_PROPERTY_MANAGER">
+                                <label class="btn btn-outline-success w-100 py-2 d-flex flex-column align-items-center" for="roleManager">
+                                    <i class="bi bi-building-gear fs-4 mb-1"></i>
+                                    <span class="fw-semibold">Property Manager</span>
+                                    <small class="text-muted" style="font-size: 11px;">List &amp; Manage</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Full Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-person"></i></span>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. John Doe" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-envelope"></i></span>
+                            <input type="email" name="email" class="form-control" placeholder="john@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-telephone"></i></span>
+                            <input type="tel" name="phone" class="form-control" placeholder="+1 (555) 000-0000">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" required minlength="6">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Confirm Password</label>
+                            <input type="password" name="confirmPassword" class="form-control" placeholder="••••••••" required minlength="6">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-2">
+                        <i class="bi bi-check-circle me-1"></i> Register Account
+                    </button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <span class="text-muted small">Already have an account?</span>
+                    <a th:href="@{/login}" class="fw-semibold text-primary ms-1">Sign In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
